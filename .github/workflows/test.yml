@@ -1,0 +1,26 @@
+name: Test
+on:
+  push:
+    branches:
+      - '*'
+jobs:
+  test-api:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Git Checkout Core
+        uses: actions/checkout@v3
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+      - name: Install php dependencies
+        run: composer install --no-ansi --no-interaction --no-plugins --no-progress --no-scripts --optimize-autoloader
+      - name: Start MySQL 8.0
+        run: sudo systemctl start mysql && mysql -uroot -proot -e 'CREATE DATABASE fullstack_challenge_test;'
+      - name: Copy test env file
+        run: cp .env.test .env
+      - name: Run tests
+        run: php artisan test
